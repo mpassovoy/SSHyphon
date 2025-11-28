@@ -1,0 +1,13 @@
+services:
+  sshyphon:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SYNC_MONITOR_DATA_DIR=/data
+      - SYNC_MONITOR_FRONTEND_DIST=/app/frontend_dist
+    volumes:
+      - ./data:/data
+      - /Users/mark/Downloads:/local-sync # Mount local sync directory
+    restart: unless-stopped
