@@ -19,6 +19,24 @@ export function JellyfinSetup({ onClose, onManageTasks }: Props) {
   const [isDirty, setIsDirty] = useState(false);
   const MASK = "********";
 
+  const hasServerUrl = Boolean(config?.server_url?.trim());
+  const hasApiKey = Boolean(
+    apiKeyInput || resolvedApiKey || (config?.has_api_key && apiKeyInput === MASK)
+  );
+  const manageTasksDisabled =
+    !hasServerUrl || !hasApiKey || isDirty || !config?.tested || saving || testing;
+  const manageTasksTooltip = !hasServerUrl || !hasApiKey
+    ? "Jellyfin Server and API Key are required before Tasks are available."
+    : isDirty
+      ? "Save settings before managing tasks."
+      : !config?.tested
+        ? "Test and validate the connection before managing tasks."
+        : saving
+          ? "Wait for settings to finish saving."
+          : testing
+            ? "Wait for the connection test to finish."
+            : "";
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -138,9 +156,6 @@ export function JellyfinSetup({ onClose, onManageTasks }: Props) {
   if (loading) {
     return (
       <div className="config-view">
-        <div className="config-header">
-          <h1>Jellyfin Setup</h1>
-        </div>
         <p className="muted">Loading Jellyfin configuration…</p>
       </div>
     );
@@ -149,9 +164,6 @@ export function JellyfinSetup({ onClose, onManageTasks }: Props) {
   if (!config) {
     return (
       <div className="config-view">
-        <div className="config-header">
-          <h1>Jellyfin Setup</h1>
-        </div>
         <p className="muted">Jellyfin configuration could not be loaded.</p>
       </div>
     );
@@ -159,16 +171,10 @@ export function JellyfinSetup({ onClose, onManageTasks }: Props) {
 
   return (
     <div className="config-view">
-      <div className="config-header">
-        <h1>Jellyfin Setup</h1>
-        <div className="flex-row button-group">
-          <button className="secondary-btn" type="button" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="primary-btn" type="button" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving…" : "Save"}
-          </button>
-        </div>
+      <div className="settings-tab-actions">
+        <button className="primary-btn" type="button" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </button>
       </div>
 
       <form onSubmit={handleSave} className="card" style={{ marginBottom: "1.5rem" }}>
@@ -212,7 +218,8 @@ export function JellyfinSetup({ onClose, onManageTasks }: Props) {
               className="secondary-btn"
               type="button"
               onClick={onManageTasks}
-              disabled={!config.tested || isDirty}
+              disabled={manageTasksDisabled}
+              title={manageTasksTooltip || undefined}
             >
               Manage tasks
             </button>

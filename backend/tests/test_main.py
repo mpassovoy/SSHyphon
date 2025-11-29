@@ -2,12 +2,18 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app import main
-from backend.app.models import ConfigResponse, SftpConfig, SyncStatus
+from backend.app.models import ConfigResponse, JellyfinConfigResponse, SftpConfig, SyncStatus
 
 
 @pytest.fixture()
-def client():
-    return TestClient(main.app)
+def client(tmp_path, monkeypatch):
+    monkeypatch.setattr(main.config_store, "AUTH_FILE", tmp_path / "auth.json")
+    client = TestClient(main.app)
+    main.config_store.save_auth_record({})
+    setup_response = client.post("/api/auth/setup", json={"username": "tester", "password": "secret"})
+    token = setup_response.json()["token"]
+    client.headers.update({"Authorization": f"Bearer {token}"})
+    return client
 
 
 def _sample_config(password: str = "********") -> ConfigResponse:
@@ -198,6 +204,37 @@ def test_errors_endpoint_uses_limit(monkeypatch, client):
     assert response.status_code == 200
     assert called["limit"] == 3
     assert response.json()["errors"] == ["only"]
+
+
+def test_read_jellyfin_config_can_reveal(monkeypatch, client):
+    expected = JellyfinConfigResponse(server_url="http://jf", api_key="secret", has_api_key=True, tested=True)
+
+    called = {"mask": None}
+
+    def fake_get(mask_secrets=True):
+        called["mask"] = mask_secrets
+        return expected
+
+    monkeypatch.setattr(main.config_store, "get_jellyfin_config", fake_get)
+
+    response = client.get("/api/jellyfin/config?reveal=true")
+    assert response.status_code == 200
+    assert called["mask"] is False
+    assert response.json()["api_key"] == "secret"
+
+
+def test_read_jellyfin_config_failure_returns_500(monkeypatch, client):
+    from fastapi import HTTPException
+
+    monkeypatch.setattr(
+        main.config_store,
+        "get_jellyfin_config",
+        lambda mask_secrets=True: (_ for _ in ()).throw(HTTPException(status_code=500, detail="boom")),
+    )
+
+    response = client.get("/api/jellyfin/config")
+    assert response.status_code == 500
+    assert "boom" in response.text
 
 
 def test_clear_error_log_resets_file(tmp_path, monkeypatch, client):

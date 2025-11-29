@@ -57,6 +57,11 @@ vi.mock("react-hot-toast", () => {
 });
 
 vi.mock("../api/service", () => ({
+  fetchAuthStatus: vi.fn().mockResolvedValue({
+    configured: true,
+    authenticated: true,
+    session_expires_at: Math.round(Date.now() / 1000) + 3600,
+  }),
   fetchConfig: vi.fn().mockResolvedValue({ ...baseConfig }),
   fetchStatus: vi.fn().mockResolvedValue({ ...baseStatus }),
   fetchVersionInfo: vi.fn().mockResolvedValue({ ...baseVersion }),
@@ -67,11 +72,33 @@ vi.mock("../api/service", () => ({
   startSync: vi.fn().mockResolvedValue({ ...baseStatus, state: "connecting", message: "Connecting" }),
   stopSync: vi.fn().mockResolvedValue({ ...baseStatus, state: "stopping", message: "Stopping" }),
   updateConfig: vi.fn().mockResolvedValue({ ...baseConfig }),
+  logout: vi.fn().mockResolvedValue(undefined),
+  login: vi.fn(),
+  setupAuth: vi.fn(),
 }));
 
 const mockedServices = vi.mocked(await import("../api/service"), true);
 
 describe("App", () => {
+  beforeEach(() => {
+    mockedServices.fetchAuthStatus.mockResolvedValue({
+      configured: true,
+      authenticated: true,
+      session_expires_at: Math.round(Date.now() / 1000) + 3600,
+    });
+    mockedServices.fetchConfig.mockResolvedValue({ ...baseConfig });
+    mockedServices.fetchStatus.mockResolvedValue({ ...baseStatus });
+    mockedServices.fetchVersionInfo.mockResolvedValue({ ...baseVersion });
+    mockedServices.fetchErrors.mockResolvedValue(["first error"]);
+    mockedServices.fetchActivityLog.mockResolvedValue(["activity one"]);
+    mockedServices.clearActivityLog.mockResolvedValue(undefined);
+    mockedServices.clearErrorLog.mockResolvedValue(undefined);
+    mockedServices.startSync.mockResolvedValue({ ...baseStatus, state: "connecting", message: "Connecting" });
+    mockedServices.stopSync.mockResolvedValue({ ...baseStatus, state: "stopping", message: "Stopping" });
+    mockedServices.updateConfig.mockResolvedValue({ ...baseConfig });
+    mockedServices.logout.mockResolvedValue(undefined);
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -80,7 +107,9 @@ describe("App", () => {
     render(<App />);
 
     await waitFor(() => expect(mockedServices.fetchConfig).toHaveBeenCalled());
-    await waitFor(() => expect(screen.getByText(/SSHyphon/)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { level: 1, name: /SSHyphon/ })).toBeInTheDocument(),
+    );
 
     const startButton = await screen.findByRole("button", { name: /start sync/i });
     expect(startButton).toBeEnabled();
@@ -89,11 +118,15 @@ describe("App", () => {
     await waitFor(() => expect(mockedServices.startSync).toHaveBeenCalledTimes(1));
   });
 
+  const openSettingsPanel = async () => {
+    const openSettings = await screen.findByRole("button", { name: /settings/i });
+    await userEvent.click(openSettings);
+  };
+
   it("opens the config view and saves changes", async () => {
     render(<App />);
 
-    const openConfig = await screen.findByRole("button", { name: /sync settings/i });
-    await userEvent.click(openConfig);
+    await openSettingsPanel();
 
     expect(await screen.findByText(/Edit Settings/)).toBeInTheDocument();
 
@@ -105,7 +138,7 @@ describe("App", () => {
   });
 
   it("prevents starting when the config is incomplete", async () => {
-    mockedServices.fetchConfig.mockResolvedValueOnce({ ...baseConfig, host: "" });
+    mockedServices.fetchConfig.mockResolvedValue({ ...baseConfig, host: "" });
 
     render(<App />);
 
@@ -149,15 +182,18 @@ describe("App", () => {
   });
 
   it("surfaces reveal failures in the config view", async () => {
-    mockedServices.fetchConfig.mockResolvedValueOnce({ ...baseConfig });
-    mockedServices.fetchConfig.mockRejectedValueOnce(new Error("nope"));
+    mockedServices.fetchConfig.mockImplementation(async (options?: { reveal?: boolean }) => {
+      if (options?.reveal) {
+        throw new Error("nope");
+      }
+      return { ...baseConfig };
+    });
 
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     render(<App />);
 
-    const openConfig = await screen.findByRole("button", { name: /sync settings/i });
-    await userEvent.click(openConfig);
+    await openSettingsPanel();
 
     const revealButton = await screen.findByRole("button", { name: /show/i });
     await userEvent.click(revealButton);
@@ -170,8 +206,9 @@ describe("App", () => {
   it("renders the logs view and counts errors", async () => {
     render(<App />);
 
-    const openLogs = await screen.findByRole("button", { name: /logs/i });
-    await userEvent.click(openLogs);
+    await openSettingsPanel();
+    const logsTab = await screen.findByRole("tab", { name: /logs/i });
+    await userEvent.click(logsTab);
 
     expect(await screen.findByText(/Activity Log/i)).toBeInTheDocument();
 

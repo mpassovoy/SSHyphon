@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings Tab Proposals</title>
+    <link rel="stylesheet" href="../frontend/src/styles.css" />
+    <style>
+      body {
+        background: #0b1724;
+      }
+      main {
+        display: grid;
+        gap: 2rem;
+        padding: 2rem 1rem 3rem;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .preview-wrapper {
+        background: #e2e8f0;
+        padding: 1.25rem;
+        border-radius: 18px;
+        border: 1px solid #cbd5e1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        color: #0b1724;
+      }
+      .preview-header h2 {
+        margin: 0;
+      }
+      .settings-panel {
+        max-width: 100%;
+      }
+      .dummy-content {
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 1rem;
+        color: #475569;
+        background: rgba(148, 163, 184, 0.15);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="preview-wrapper">
+        <div class="preview-header">
+          <h2>Option A — Connected Pill Tabs</h2>
+          <p>Gradient rail, floating tabs, and card shadow.</p>
+        </div>
+        <div class="settings-panel" data-tab-style="pill">
+          <header class="settings-header">
+            <div>
+              <h1>Settings</h1>
+            </div>
+            <div class="flex-row button-group">
+              <button class="secondary-btn" type="button">Back to dashboard</button>
+            </div>
+          </header>
+          <div class="settings-tabs" role="tablist">
+            <button class="settings-tab active" type="button">Sync Settings</button>
+            <button class="settings-tab" type="button">Jellyfin Setup</button>
+            <button class="settings-tab" type="button">Logs</button>
+          </div>
+          <div class="settings-content">
+            <div class="settings-tab-actions">
+              <button class="secondary-btn" type="button">Cancel</button>
+              <button class="primary-btn" type="button">Save</button>
+            </div>
+            <div class="dummy-content">
+              <strong>Sync Settings</strong>
+              <p>Wireframed controls placeholder content to visualize spacing.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-wrapper">
+        <div class="preview-header">
+          <h2>Option B — Underline Emphasis</h2>
+          <p>Text-forward tabs with dark active underline and tighter spacing.</p>
+        </div>
+        <div class="settings-panel" data-tab-style="underline">
+          <header class="settings-header">
+            <div>
+              <h1>Settings</h1>
+            </div>
+            <div class="flex-row button-group">
+              <button class="secondary-btn" type="button">Back to dashboard</button>
+            </div>
+          </header>
+          <div class="settings-tabs" role="tablist">
+            <button class="settings-tab active" type="button">Sync Settings</button>
+            <button class="settings-tab" type="button">Jellyfin Setup</button>
+            <button class="settings-tab" type="button">Logs</button>
+          </div>
+          <div class="settings-content">
+            <div class="settings-tab-actions">
+              <button class="secondary-btn" type="button">Cancel</button>
+              <button class="primary-btn" type="button">Save</button>
+            </div>
+            <div class="dummy-content">
+              <strong>Sync Settings</strong>
+              <p>Wireframed controls placeholder content to visualize spacing.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -102,3 +102,20 @@ class JellyfinTestRequest(BaseModel):
     api_key: str = Field("", description="API key to test")
     include_hidden_tasks: bool = Field(True, description="Whether to include hidden tasks during test")
     persist: bool = Field(False, description="Persist the successful test result on the server")
+
+
+class AuthRequest(BaseModel):
+    username: str = Field("", description="Username for authentication")
+    password: str = Field("", description="Password for authentication")
+    remember_me: bool = Field(False, description="Extend session duration and remember the user")
+
+
+class AuthResponse(BaseModel):
+    token: str
+    expires_at: float
+
+
+class AuthStatus(BaseModel):
+    configured: bool
+    authenticated: bool
+    session_expires_at: float | None = None

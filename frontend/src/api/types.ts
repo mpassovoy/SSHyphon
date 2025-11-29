@@ -98,3 +98,20 @@ export interface VersionInfo {
   update_available?: boolean;
   checked_at?: string;
 }
+
+export interface AuthStatus {
+  configured: boolean;
+  authenticated: boolean;
+  session_expires_at?: number | null;
+}
+
+export interface AuthPayload {
+  username: string;
+  password: string;
+  remember_me?: boolean;
+}
+
+export interface AuthResponse {
+  token: string;
+  expires_at: number;
+}

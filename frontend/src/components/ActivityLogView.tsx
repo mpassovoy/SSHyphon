@@ -8,11 +8,10 @@ import {
 } from "../api/service";
 
 interface Props {
-  onClose: () => void;
   initialTab?: "activity" | "errors";
 }
 
-export function ActivityLogView({ onClose, initialTab = "activity" }: Props) {
+export function ActivityLogView({ initialTab = "activity" }: Props) {
   const [activeTab, setActiveTab] = useState<"activity" | "errors">(initialTab);
   const [activityEntries, setActivityEntries] = useState<string[]>([]);
   const [errorEntries, setErrorEntries] = useState<string[]>([]);
@@ -89,12 +88,6 @@ export function ActivityLogView({ onClose, initialTab = "activity" }: Props) {
 
   return (
     <div className="config-view">
-      <div className="config-header">
-        <h1>Logs</h1>
-        <button className="primary-btn" type="button" onClick={onClose}>
-          Close
-        </button>
-      </div>
       <div className="card" style={{ minHeight: "400px" }}>
         <div className="tab-buttons" style={{ marginBottom: "1rem" }}>
           <button

@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { fetchConfig, fetchErrors, fetchStatus, fetchVersionInfo, startSync, stopSync, updateConfig } from "./api/service";
-import type { ConfigResponse, SftpConfig, SyncStatus, VersionInfo } from "./api/types";
+import {
+  fetchAuthStatus,
+  fetchConfig,
+  fetchErrors,
+  fetchStatus,
+  fetchVersionInfo,
+  logout as logoutRequest,
+  startSync,
+  stopSync,
+  updateConfig
+} from "./api/service";
+import type { AuthResponse, ConfigResponse, SftpConfig, SyncStatus, VersionInfo } from "./api/types";
 import { ConfigForm } from "./components/ConfigForm";
 import { ErrorLog } from "./components/ErrorLog";
 import { JellyfinSetup } from "./components/JellyfinSetup";
@@ -9,6 +19,25 @@ import { JellyfinTasksManager } from "./components/JellyfinTasksManager";
 import { ActivityLogView } from "./components/ActivityLogView";
 import { StatusPanel } from "./components/StatusPanel";
 import { TransfersTable } from "./components/TransfersTable";
+import { AuthLogin } from "./components/AuthLogin";
+import { AuthSetup } from "./components/AuthSetup";
+import { clearStoredSession, getStoredSession, persistSession } from "./utils/auth";
+
+const SETTINGS_TABS: { id: "sync" | "jellyfin" | "logs"; label: string }[] = [
+  { id: "sync", label: "Sync Settings" },
+  { id: "jellyfin", label: "Jellyfin Setup" },
+  { id: "logs", label: "Logs" }
+];
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <a href="https://github.com/mpassovoy/SSHyphon" target="_blank" rel="noreferrer">
+        View SSHyphon on GitHub
+      </a>
+    </footer>
+  );
+}
 
 export default function App() {
   const [config, setConfig] = useState<ConfigResponse | null>(null);
@@ -17,10 +46,16 @@ export default function App() {
   const [savingConfig, setSavingConfig] = useState(false);
   const [starting, setStarting] = useState(false);
   const [stopping, setStopping] = useState(false);
-  const [viewMode, setViewMode] = useState<"dashboard" | "config" | "jellyfin" | "jellyfinTasks" | "logs">("dashboard");
+  const [viewMode, setViewMode] = useState<
+    "dashboard" | "settings" | "jellyfinTasks"
+  >("dashboard");
+  const [settingsTab, setSettingsTab] = useState<"sync" | "jellyfin" | "logs">("sync");
   const [configFormValid, setConfigFormValid] = useState(false);
   const [logTab, setLogTab] = useState<"activity" | "errors">("activity");
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
+  const [authConfigured, setAuthConfigured] = useState<boolean | null>(null);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const buildVersion = import.meta.env.VITE_APP_VERSION ?? "0.0.0";
   const updateAvailable = Boolean(versionInfo?.update_available && versionInfo.latest_version);
   const latestVersion = versionInfo?.latest_version;
@@ -72,10 +107,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!authenticated) {
+      return;
+    }
     loadConfig();
     loadStatus();
     loadErrors();
-  }, [loadConfig, loadStatus, loadErrors]);
+  }, [authenticated, loadConfig, loadStatus, loadErrors]);
 
   const loadVersionInfo = useCallback(async () => {
     try {
@@ -91,15 +129,21 @@ export default function App() {
   }, [loadVersionInfo]);
 
   useEffect(() => {
+    if (!authenticated) {
+      return () => undefined;
+    }
     const intervalMs = status?.state === "jellyfin" ? 1000 : 3000;
     const interval = setInterval(loadStatus, intervalMs);
     return () => clearInterval(interval);
-  }, [loadStatus, status?.state]);
+  }, [authenticated, loadStatus, status?.state]);
 
   useEffect(() => {
+    if (!authenticated) {
+      return () => undefined;
+    }
     const interval = setInterval(loadErrors, 10000);
     return () => clearInterval(interval);
-  }, [loadErrors]);
+  }, [authenticated, loadErrors]);
 
   const handleSave = async (payload: SftpConfig) => {
     setSavingConfig(true);
@@ -143,12 +187,14 @@ export default function App() {
     }
   };
 
-  const handleOpenConfig = () => setViewMode("config");
-  const handleCloseConfig = () => setViewMode("dashboard");
-  const handleOpenJellyfin = () => setViewMode("jellyfin");
+  const openSettings = (tab: "sync" | "jellyfin" | "logs" = "sync") => {
+    setSettingsTab(tab);
+    setViewMode("settings");
+  };
+  const handleCloseSettings = () => setViewMode("dashboard");
   const handleOpenLogs = (tab: "activity" | "errors" = "activity") => {
     setLogTab(tab);
-    setViewMode("logs");
+    openSettings("logs");
   };
   const handleJellyfinTasksStart = (next?: SyncStatus) => {
     if (next) {
@@ -156,6 +202,103 @@ export default function App() {
     }
     setViewMode("dashboard");
   };
+
+  const handleAuthSession = useCallback(
+    async (session: AuthResponse, rememberMe: boolean) => {
+      persistSession(session.token, session.expires_at, { remember: rememberMe });
+      setAuthConfigured(true);
+      setAuthenticated(true);
+      setViewMode("dashboard");
+      await loadConfig();
+      await loadStatus();
+      await loadErrors();
+    },
+    [loadConfig, loadErrors, loadStatus]
+  );
+
+  const refreshAuth = useCallback(async () => {
+    setCheckingAuth(true);
+    try {
+      const statusPayload = await fetchAuthStatus();
+      setAuthConfigured(statusPayload.configured);
+      setAuthenticated(statusPayload.authenticated);
+      if (statusPayload.authenticated) {
+        await loadConfig();
+        await loadStatus();
+        await loadErrors();
+      } else {
+        setConfig(null);
+        setStatus(null);
+        setErrors([]);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to verify authentication");
+    } finally {
+      setCheckingAuth(false);
+    }
+  }, [loadConfig, loadErrors, loadStatus]);
+
+  useEffect(() => {
+    const stored = getStoredSession();
+    if (!stored) {
+      clearStoredSession();
+    }
+    refreshAuth();
+  }, [refreshAuth]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutRequest();
+    } catch (error) {
+      console.error(error);
+    }
+    clearStoredSession();
+    setAuthenticated(false);
+    setConfig(null);
+    setStatus(null);
+    setErrors([]);
+    setAuthConfigured(true);
+  };
+
+  if (checkingAuth || authConfigured === null) {
+    return (
+      <>
+        <Toaster position="bottom-right" />
+        <div className="auth-container">
+          <div className="auth-card">
+            <p>Checking authentication…</p>
+          </div>
+        </div>
+        <SiteFooter />
+      </>
+    );
+  }
+
+  if (authConfigured === false) {
+    return (
+      <>
+        <Toaster position="bottom-right" />
+        <AuthSetup onAuthenticated={handleAuthSession} />
+        <SiteFooter />
+      </>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <>
+        <Toaster position="bottom-right" />
+        <AuthLogin
+          onAuthenticated={handleAuthSession}
+          buildVersion={buildVersion}
+          updateAvailable={updateAvailable}
+          latestVersion={latestVersion}
+        />
+        <SiteFooter />
+      </>
+    );
+  }
 
   return (
     <>
@@ -187,14 +330,11 @@ export default function App() {
               </div>
             </div>
             <div className="top-action-bar button-group">
-              <button className="primary-btn" onClick={handleOpenConfig}>
-                Sync Settings
+              <button className="primary-btn" onClick={() => openSettings("sync")} aria-label="Settings">
+                Settings
               </button>
-              <button className="secondary-btn" onClick={handleOpenJellyfin}>
-                Jellyfin Setup
-              </button>
-              <button className="secondary-btn" onClick={() => handleOpenLogs()}>
-                Logs
+              <button className="secondary-btn" onClick={handleLogout} aria-label="Logout">
+                Logout
               </button>
             </div>
           </header>
@@ -212,48 +352,80 @@ export default function App() {
             <TransfersTable transfers={status?.recent_transfers ?? []} stats={status?.stats ?? { files_downloaded: 0, bytes_downloaded: 0, errors: 0 }} />
           </div>
         </div>
-      ) : viewMode === "config" ? (
-        <div className="config-view">
-          <div className="config-header">
-            <h1>Sync Settings</h1>
-            <div className="flex-row button-group">
-              <button className="secondary-btn" type="button" onClick={handleCloseConfig}>
-                Cancel
-              </button>
-              <button
-                className="primary-btn"
-                type="submit"
-                form="sync-settings-form"
-                disabled={!configFormValid || savingConfig}
-              >
-                {savingConfig ? "Saving…" : "Save"}
-              </button>
+      ) : viewMode === "settings" ? (
+        <div className="settings-page">
+          <div className="settings-panel" data-tab-style="underline">
+            <header className="settings-header">
+              <div>
+                <h1>Settings</h1>
+              </div>
+              <div className="flex-row button-group">
+                <button className="secondary-btn" type="button" onClick={handleCloseSettings}>
+                  Back to dashboard
+                </button>
+              </div>
+            </header>
+            <div className="settings-tabs" role="tablist">
+              {SETTINGS_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={settingsTab === tab.id}
+                  className={`settings-tab ${
+                    settingsTab === tab.id ? "primary-btn active" : "secondary-btn"
+                  }`}
+                  onClick={() => setSettingsTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <div className="settings-content">
+              {settingsTab === "sync" && (
+                <>
+                  <div className="settings-tab-actions">
+                    <button
+                      className="primary-btn"
+                      type="submit"
+                      form="sync-settings-form"
+                      disabled={!configFormValid || savingConfig}
+                    >
+                      {savingConfig ? "Saving…" : "Save"}
+                    </button>
+                  </div>
+                  <ConfigForm
+                    config={config}
+                    onSave={async (payload) => {
+                      await handleSave(payload);
+                    }}
+                    onRevealPassword={handleRevealPassword}
+                    formId="sync-settings-form"
+                    onValidityChange={setConfigFormValid}
+                  />
+                </>
+              )}
+              {settingsTab === "jellyfin" && (
+                <JellyfinSetup
+                  onClose={handleCloseSettings}
+                  onManageTasks={() => setViewMode("jellyfinTasks")}
+                />
+              )}
+              {settingsTab === "logs" && (
+                <ActivityLogView
+                  initialTab={logTab}
+                />
+              )}
             </div>
           </div>
-          <ConfigForm
-            config={config}
-            onSave={async (payload) => {
-              await handleSave(payload);
-              handleCloseConfig();
-            }}
-            onRevealPassword={handleRevealPassword}
-            formId="sync-settings-form"
-            onValidityChange={setConfigFormValid}
-          />
         </div>
-      ) : viewMode === "jellyfin" ? (
-        <JellyfinSetup
-          onClose={() => setViewMode("dashboard")}
-          onManageTasks={() => setViewMode("jellyfinTasks")}
-        />
-      ) : viewMode === "logs" ? (
-        <ActivityLogView initialTab={logTab} onClose={() => setViewMode("dashboard")} />
-      ) : (
+      ) : viewMode === "jellyfinTasks" ? (
         <JellyfinTasksManager
-          onClose={() => setViewMode("jellyfin")}
+          onClose={() => openSettings("jellyfin")}
           onLaunchTasks={handleJellyfinTasksStart}
         />
-      )}
+      ) : null}
+      <SiteFooter />
     </>
   );
 }

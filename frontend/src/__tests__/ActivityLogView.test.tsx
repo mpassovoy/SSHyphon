@@ -38,7 +38,7 @@ describe("ActivityLogView", () => {
   });
 
   it("refreshes and clears both activity and error logs", async () => {
-    render(<ActivityLogView onClose={() => {}} />);
+    render(<ActivityLogView />);
 
     await waitFor(() => expect(mockedServices.fetchActivityLog).toHaveBeenCalledTimes(1));
 
@@ -64,7 +64,7 @@ describe("ActivityLogView", () => {
     mockedServices.clearActivityLog.mockRejectedValueOnce(new Error("fail"));
     mockFetch.mockRejectedValueOnce(new Error("network"));
 
-    render(<ActivityLogView onClose={() => {}} />);
+    render(<ActivityLogView />);
 
     await waitFor(() => expect(mockedServices.fetchActivityLog).toHaveBeenCalled());
 
@@ -80,7 +80,7 @@ describe("ActivityLogView", () => {
     mockedServices.fetchActivityLog.mockResolvedValueOnce(["activity b"]);
     mockedServices.fetchErrors.mockResolvedValueOnce(["error a"]);
 
-    render(<ActivityLogView onClose={() => {}} />);
+    render(<ActivityLogView />);
 
     expect(await screen.findByText("activity a")).toBeInTheDocument();
 

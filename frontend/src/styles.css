@@ -22,6 +22,23 @@ body {
   min-height: 100vh;
 }
 
+.site-footer {
+  margin: 2rem 0 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.site-footer a {
+  color: #0ea5e9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
 button {
   font: inherit;
 }
@@ -57,6 +74,17 @@ button {
 @media (max-width: 768px) {
   .button-group {
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .top-action-bar .button-group {
+    flex-wrap: nowrap;
+  }
+  .button-group button {
+    padding: 0.55rem 0.8rem;
+    min-width: 0;
+    flex: 1;
   }
 }
 
@@ -123,10 +151,25 @@ button {
   justify-content: flex-end;
 }
 
+.session-meta {
+  margin-right: auto;
+  color: #003459;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .config-view {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
+}
+
+.settings-content .config-view {
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .config-header {
@@ -148,6 +191,169 @@ button {
 
 .config-form-header h2 {
   margin: 0;
+}
+
+.settings-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.settings-panel {
+  --tab-shell-bg: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --tab-shell-border: #d7dce5;
+  --tab-shell-radius: 16px;
+  --tab-shell-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+  --tab-gap: 0.5rem;
+  --tab-padding: 0.7rem 1.1rem;
+  --tab-radius: 12px;
+  --tab-font-weight: 600;
+  --tab-color: #475569;
+  --tab-hover-bg: rgba(255, 255, 255, 0.55);
+  --tab-hover-border: #cbd5e1;
+  --tab-hover-color: #0f172a;
+  --tab-active-bg: #ffffff;
+  --tab-active-border: #cbd5e1;
+  --tab-active-color: #0f172a;
+  --tab-active-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  --tab-shell-padding: 0.75rem 0.75rem 0.5rem;
+  --tab-shell-offset: -1px;
+  --tab-shell-border-bottom: none;
+  --content-radius: 0 0 16px 16px;
+  --content-border: #d7dce5;
+  --content-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1.25rem;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: var(--tab-gap);
+  padding: var(--tab-shell-padding);
+  background: var(--tab-shell-bg);
+  border: 1px solid var(--tab-shell-border);
+  border-bottom: var(--tab-shell-border-bottom);
+  border-top-left-radius: var(--tab-shell-radius);
+  border-top-right-radius: var(--tab-shell-radius);
+  margin-bottom: var(--tab-shell-offset);
+  box-shadow: var(--tab-shell-shadow);
+}
+
+.settings-tab {
+  border: none;
+  background: none;
+  padding: 0;
+  font-weight: var(--tab-font-weight);
+  color: inherit;
+  cursor: pointer;
+}
+
+.settings-tabs .primary-btn,
+.settings-tabs .secondary-btn {
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--tab-radius);
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.settings-tabs .primary-btn {
+  box-shadow: 0 10px 20px rgba(0, 126, 167, 0.25);
+}
+
+.settings-tabs .settings-tab:focus-visible {
+  outline: 2px solid rgba(0, 167, 225, 0.45);
+  outline-offset: 3px;
+}
+
+.settings-content {
+  background: #ffffff;
+  border: 1px solid var(--content-border);
+  border-radius: var(--content-radius);
+  padding: 2rem;
+  box-shadow: var(--content-shadow);
+}
+
+.settings-panel[data-tab-style="pill"] {
+  --tab-shell-bg: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --tab-shell-border: #d7dce5;
+  --tab-shell-radius: 16px;
+  --tab-shell-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+  --tab-gap: 0.5rem;
+  --tab-padding: 0.7rem 1.1rem;
+  --tab-radius: 12px;
+  --tab-font-weight: 600;
+  --tab-color: #475569;
+  --tab-hover-bg: rgba(255, 255, 255, 0.55);
+  --tab-hover-border: #cbd5e1;
+  --tab-hover-color: #0f172a;
+  --tab-active-bg: #ffffff;
+  --tab-active-border: #cbd5e1;
+  --tab-active-color: #0f172a;
+  --tab-active-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  --tab-shell-padding: 0.75rem 0.75rem 0.5rem;
+  --tab-shell-offset: -1px;
+  --tab-shell-border-bottom: none;
+  --content-radius: 0 0 16px 16px;
+  --content-border: #d7dce5;
+  --content-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.settings-panel[data-tab-style="underline"] {
+  --tab-shell-bg: transparent;
+  --tab-shell-border: transparent;
+  --tab-shell-radius: 12px;
+  --tab-shell-shadow: none;
+  --tab-gap: 0.25rem;
+  --tab-padding: 0.65rem 1.1rem;
+  --tab-radius: 10px;
+  --tab-font-weight: 600;
+  --tab-color: #003459;
+  --tab-hover-bg: transparent;
+  --tab-hover-border: transparent;
+  --tab-hover-color: #003459;
+  --tab-active-bg: transparent;
+  --tab-active-border: transparent;
+  --tab-active-color: #003459;
+  --tab-active-shadow: none;
+  --tab-shell-padding: 0 0 0.25rem;
+  --tab-shell-offset: 0;
+  --tab-shell-border-bottom: 1px solid #e2e8f0;
+  --content-radius: 14px;
+  --content-border: #e2e8f0;
+  --content-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.settings-panel[data-tab-style="underline"] .settings-tabs {
+  justify-content: flex-start;
+  gap: 0.25rem;
+}
+
+.settings-panel[data-tab-style="underline"] .settings-tab {
+  border-radius: 10px;
+}
+
+.settings-tab-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .auto-sync-toggle {
@@ -283,7 +489,7 @@ button {
 
 .primary-btn,
 .secondary-btn {
-  border: none;
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
@@ -294,6 +500,7 @@ button {
 .primary-btn {
   background: linear-gradient(135deg, #00a7e1, #007ea7);
   color: #fff;
+  border-color: rgba(0, 126, 167, 0.65);
   box-shadow: 0 10px 20px rgba(0, 126, 167, 0.25);
 }
 
@@ -304,7 +511,8 @@ button {
 }
 
 .secondary-btn {
-  background: rgba(0, 126, 167, 0.12);
+  background: linear-gradient(135deg, rgba(0, 126, 167, 0.12), rgba(0, 126, 167, 0.2));
+  border-color: rgba(0, 126, 167, 0.35);
   color: #003459;
 }
 
@@ -594,4 +802,120 @@ button {
 .form-end-note {
   display: block;
   margin-top: 1rem;
+}
+
+.auth-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.auth-shell {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.auth-page-header {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-page-tagline {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.auth-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 1.5rem;
+}
+
+.auth-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  border-radius: 16px;
+  width: min(480px, 100%);
+  padding: 2rem;
+  color: #0f172a;
+}
+
+.auth-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+.auth-subtitle {
+  margin: 0 0 1.5rem;
+  color: #64748b;
+}
+
+.auth-error {
+  margin: 0 0 1rem;
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.auth-input {
+  padding: 0.85rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #00a7e1;
+  box-shadow: 0 0 0 3px rgba(0, 167, 225, 0.25);
+}
+
+.auth-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  user-select: none;
+}
+
+.auth-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #00a7e1;
+  cursor: pointer;
+}
+
+.auth-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
 }

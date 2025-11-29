@@ -193,3 +193,43 @@ def test_start_jellyfin_tasks_guards(monkeypatch):
     service._jellyfin_thread = DummyThread(alive=True)
     with pytest.raises(RuntimeError):
         service.start_jellyfin_tasks()
+
+
+def test_sync_directory_honors_skip_and_cutoff(monkeypatch):
+    service = sync_service.SyncService()
+    entries = []
+
+    class Entry:
+        def __init__(self, filename, st_mode, st_size=0, st_mtime=0):
+            self.filename = filename
+            self.st_mode = st_mode
+            self.st_size = st_size
+            self.st_mtime = st_mtime
+
+    def listdir_attr(path):
+        entries.append(path)
+        return [
+            Entry("skipme", sync_service.stat.S_IFDIR),
+            Entry("old.txt", sync_service.stat.S_IFREG, st_size=10, st_mtime=1),
+            Entry("new.txt", sync_service.stat.S_IFREG, st_size=20, st_mtime=999),
+        ]
+
+    downloads: list[str] = []
+    monkeypatch.setattr(sync_service.Path, "mkdir", lambda self, parents=False, exist_ok=False: None, raising=False)
+    monkeypatch.setattr(sync_service, "config_store", type("Cfg", (), {"append_error": lambda *a, **k: None}))
+    monkeypatch.setattr(service, "_is_same_file", lambda path, size: path.name == "old.txt")
+    monkeypatch.setattr(service, "_download_file", lambda sftp, remote, local, size: downloads.append(remote))
+    monkeypatch.setattr(DummySFTPClient, "listdir_attr", lambda self, path: listdir_attr(path))
+
+    service._sync_directory(DummySFTPClient(), "/remote", Path("/local"), {"skipme"}, last_sync_cutoff=100)
+
+    assert "/remote" in entries
+    assert downloads == ["/remote/new.txt"]
+
+
+def test_sync_directory_respects_stop_request(monkeypatch):
+    service = sync_service.SyncService()
+    service._stop_event.set()
+
+    with pytest.raises(sync_service.StopRequested):
+        service._sync_directory(DummySFTPClient(), "/remote", Path("/local"), set(), last_sync_cutoff=0)

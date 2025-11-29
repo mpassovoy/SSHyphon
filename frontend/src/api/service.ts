@@ -1,6 +1,9 @@
 import { apiClient } from "./client";
 import {
   ConfigResponse,
+  AuthPayload,
+  AuthResponse,
+  AuthStatus,
   JellyfinConfig,
   JellyfinConfigResponse,
   JellyfinTask,
@@ -86,4 +89,23 @@ export async function runJellyfinTasks(): Promise<SyncStatus> {
 export async function fetchVersionInfo(): Promise<VersionInfo> {
   const { data } = await apiClient.get<VersionInfo>("/version");
   return data;
+}
+
+export async function fetchAuthStatus(): Promise<AuthStatus> {
+  const { data } = await apiClient.get<AuthStatus>("/auth/status");
+  return data;
+}
+
+export async function setupAuth(payload: AuthPayload): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>("/auth/setup", payload);
+  return data;
+}
+
+export async function login(payload: AuthPayload): Promise<AuthResponse> {
+  const { data } = await apiClient.post<AuthResponse>("/auth/login", payload);
+  return data;
+}
+
+export async function logout(): Promise<void> {
+  await apiClient.post("/auth/logout");
 }

@@ -26,6 +26,7 @@ SECRETS_FILE = _DATA_DIR / "secrets.json"
 LAST_SYNC_FILE = _DATA_DIR / "last_sync.txt"
 ERROR_LOG_FILE = _DATA_DIR / "sync_errors.log"
 JELLYFIN_CONFIG_FILE = _DATA_DIR / "jellyfin_config.json"
+AUTH_FILE = _DATA_DIR / "auth.json"
 
 _DEFAULT_CONFIG = SftpConfig().model_dump()
 _lock = threading.RLock()
@@ -282,3 +283,13 @@ def _upgrade_selected_tasks(data: dict) -> None:
             entry["legacy_id"] = entry.get("id")
         entry["key"] = entry.get("key") or entry.get("legacy_id") or entry.get("name") or entry.get("id") or ""
         entry.pop("id", None)
+
+
+def get_auth_record() -> dict[str, Any]:
+    with _lock:
+        return _read_json(AUTH_FILE, {})
+
+
+def save_auth_record(payload: dict[str, Any]) -> None:
+    with _lock:
+        _write_json(AUTH_FILE, payload)

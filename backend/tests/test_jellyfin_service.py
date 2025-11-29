@@ -2,7 +2,7 @@ import requests
 import pytest
 
 from backend.app import jellyfin_service
-from backend.app.models import JellyfinConfigResponse, JellyfinSelectedTask
+from backend.app.models import JellyfinConfig, JellyfinConfigResponse, JellyfinSelectedTask
 
 
 class FakeResponse:
@@ -194,3 +194,15 @@ def test_get_task_status_returns_completed_on_404():
     session = FakeSession(status_queue=[{"status_code": 404}])
     status = jellyfin_service._get_task_status(session, "abc")
     assert status == {"CurrentProgressPercentage": 100, "State": "Completed"}
+
+
+def test_get_ordered_selected_tasks_filters_and_sorts():
+    tasks = [
+        JellyfinSelectedTask(key="b", name="B", enabled=True, order=2),
+        JellyfinSelectedTask(key="a", name="A", enabled=False, order=1),
+        JellyfinSelectedTask(key="c", name="C", enabled=True, order=1),
+    ]
+    cfg = JellyfinConfig(server_url="http://example", api_key="token", selected_tasks=tasks)
+
+    ordered = jellyfin_service._get_ordered_selected_tasks(cfg)
+    assert [task.key for task in ordered] == ["c", "b"]
