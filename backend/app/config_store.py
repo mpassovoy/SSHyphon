@@ -206,6 +206,7 @@ def get_jellyfin_config(mask_secrets: bool = True) -> JellyfinConfigResponse:
         _upgrade_selected_tasks(stored)
         data = JellyfinConfig().model_dump()
         data.update(stored)
+        data["server_url"] = normalize_jellyfin_url(data.get("server_url", ""))
         identifier = _jellyfin_identifier(data.get("server_url", ""))
         api_key = _get_jellyfin_key(identifier) if identifier else ""
         data["api_key"] = PASSWORD_MASK if (mask_secrets and api_key) else api_key
@@ -221,12 +222,15 @@ def save_jellyfin_config(new_config: JellyfinConfig) -> JellyfinConfigResponse:
 
         payload = new_config.model_dump()
         _upgrade_selected_tasks(payload)
+        payload["server_url"] = normalize_jellyfin_url(payload.get("server_url", ""))
         identifier = _jellyfin_identifier(payload.get("server_url", ""))
         raw_key = payload.get("api_key") or ""
 
         if raw_key == PASSWORD_MASK:
-            if previous_key:
+            if previous_key and identifier == previous_identifier:
                 _set_jellyfin_key(identifier, previous_key)
+            else:
+                _set_jellyfin_key(identifier, "")
         elif raw_key:
             _set_jellyfin_key(identifier, raw_key)
         else:

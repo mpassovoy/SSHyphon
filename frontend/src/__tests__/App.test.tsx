@@ -5,7 +5,7 @@ import { vi } from "vitest";
 import App from "../App";
 import type { ConfigResponse, SyncStatus } from "../api/types";
 
-const { toast, toastSuccess, toastError, baseConfig, baseStatus } = vi.hoisted(() => {
+const { toast, toastSuccess, toastError, baseConfig, baseStatus, baseVersion } = vi.hoisted(() => {
   const toastFn = vi.fn();
   const successFn = vi.fn();
   const errorFn = vi.fn();
@@ -33,7 +33,20 @@ const { toast, toastSuccess, toastError, baseConfig, baseStatus } = vi.hoisted((
     next_sync_time: Math.round(Date.now() / 1000) + 3600,
   };
 
-  return { toast: toastFn, toastSuccess: successFn, toastError: errorFn, baseConfig: config, baseStatus: status };
+  const version = {
+    version: "0.0.0",
+    latest_version: "0.0.0",
+    update_available: false,
+  };
+
+  return {
+    toast: toastFn,
+    toastSuccess: successFn,
+    toastError: errorFn,
+    baseConfig: config,
+    baseStatus: status,
+    baseVersion: version,
+  };
 });
 
 vi.mock("react-hot-toast", () => {
@@ -46,6 +59,7 @@ vi.mock("react-hot-toast", () => {
 vi.mock("../api/service", () => ({
   fetchConfig: vi.fn().mockResolvedValue({ ...baseConfig }),
   fetchStatus: vi.fn().mockResolvedValue({ ...baseStatus }),
+  fetchVersionInfo: vi.fn().mockResolvedValue({ ...baseVersion }),
   fetchErrors: vi.fn().mockResolvedValue(["first error"]),
   fetchActivityLog: vi.fn().mockResolvedValue(["activity one"]),
   clearActivityLog: vi.fn().mockResolvedValue(undefined),
