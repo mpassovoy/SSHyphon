@@ -5,12 +5,12 @@
 <!-- CI-BADGE:END -->
 
 <!-- TEST-RESULTS:START -->
-**Last CI test run (Pacific Time): _pending_**
+**Last CI test run (Pacific Time): 2025-11-29 15:48:06 PST**
 
 | Test | Result |
 | --- | --- |
-| Backend tests | _pending_ |
-| Frontend tests | _pending_ |
+| Backend tests | ✅ |
+| Frontend tests | ✅ |
 <!-- TEST-RESULTS:END -->
 
 SSHyphon is a Docker-native SFTP sync control surface with a FastAPI backend and React/Vite frontend—the name is a wink to “SSH hyphen” because it bridges secure shell workflows with clean separation between sync and UI. The web dashboard handles SFTP transfers, Jellyfin task orchestration, logging, and scheduling inside a single container.
