@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { login } from "../api/service";
 import type { AuthResponse } from "../api/types";
 import { clearRememberedUsername, getRememberedUsername, persistUsername } from "../utils/auth";
+import { formatBuildVersion } from "../utils/version";
 
 interface AuthLoginProps {
   onAuthenticated: (session: AuthResponse, rememberMe: boolean) => void;
@@ -23,6 +24,7 @@ export function AuthLogin({
   const [rememberMe, setRememberMe] = useState(() => Boolean(getRememberedUsername()));
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const displayVersion = formatBuildVersion(buildVersion);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -63,8 +65,8 @@ export function AuthLogin({
             <img src="/icons/icon_256.png" alt="SSHyphon icon" className="header-icon" />
             <div className="header-title">
               <h1>SSHyphon</h1>
-              <div className="header-version" aria-label={`Build version ${buildVersion}`}>
-                <span className="header-version-text">v{buildVersion}</span>
+              <div className="header-version" aria-label={`Build version ${displayVersion}`}>
+                <span className="header-version-text">{displayVersion}</span>
                 {updateAvailable && latestVersion && (
                   <span
                     className="header-version-icon"
