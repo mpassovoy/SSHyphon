@@ -15,6 +15,20 @@ describe("AuthLogin", () => {
     localStorage.clear();
   });
 
+  it("shows the build version without double-prefixing v", () => {
+    render(
+      <AuthLogin
+        onAuthenticated={vi.fn()}
+        buildVersion="v2.0.0"
+        updateAvailable={false}
+        latestVersion={"v2.0.0"}
+      />
+    );
+
+    expect(screen.getByText("v2.0.0")).toBeInTheDocument();
+    expect(screen.queryByText("vv2.0.0")).not.toBeInTheDocument();
+  });
+
   it("prefills and persists the remembered username", async () => {
     localStorage.setItem("sshyphon_username", "remembered-user");
 

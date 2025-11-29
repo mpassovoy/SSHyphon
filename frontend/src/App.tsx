@@ -22,6 +22,7 @@ import { TransfersTable } from "./components/TransfersTable";
 import { AuthLogin } from "./components/AuthLogin";
 import { AuthSetup } from "./components/AuthSetup";
 import { clearStoredSession, getStoredSession, persistSession } from "./utils/auth";
+import { formatBuildVersion } from "./utils/version";
 
 const SETTINGS_TABS: { id: "sync" | "jellyfin" | "logs"; label: string }[] = [
   { id: "sync", label: "Sync Settings" },
@@ -57,6 +58,7 @@ export default function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const buildVersion = import.meta.env.VITE_APP_VERSION ?? "0.0.0";
+  const displayVersion = formatBuildVersion(buildVersion);
   const updateAvailable = Boolean(versionInfo?.update_available && versionInfo.latest_version);
   const latestVersion = versionInfo?.latest_version;
   const canStart =
@@ -289,11 +291,11 @@ export default function App() {
     return (
       <>
         <Toaster position="bottom-right" />
-        <AuthLogin
-          onAuthenticated={handleAuthSession}
-          buildVersion={buildVersion}
-          updateAvailable={updateAvailable}
-          latestVersion={latestVersion}
+          <AuthLogin
+            onAuthenticated={handleAuthSession}
+            buildVersion={buildVersion}
+            updateAvailable={updateAvailable}
+            latestVersion={latestVersion}
         />
         <SiteFooter />
       </>
@@ -312,9 +314,9 @@ export default function App() {
                 <h1>SSHyphon</h1>
                 <div
                   className="header-version"
-                  aria-label={`Build version ${buildVersion}`}
+                  aria-label={`Build version ${displayVersion}`}
                 >
-                  <span className="header-version-text">v{buildVersion}</span>
+                  <span className="header-version-text">{displayVersion}</span>
                   {updateAvailable && (
                     <span
                       className="header-version-icon"

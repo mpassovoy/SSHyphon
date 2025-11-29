@@ -14,10 +14,61 @@ SSHyphon is a Docker-native SFTP sync control surface with a FastAPI backend and
 - **Background scheduling** – optional auto-sync keeps your mirror up to date on a configurable interval.
 
 ## Getting Started
-1. Build or pull the Docker image via `docker compose up --build` from the repo root (the provided `compose.yml` exposes port `8000` and mounts your sync/local data paths).
+1. Clone the repo and build or pull the Docker image. The fastest path is `docker compose up --build` from the repo root.
 2. Mount your target folder into the container (for example, `./local-sync` → `/local-sync`) so downloaded files persist on the host.
 3. Open `http://localhost:8000` in a browser, set the **Local Root** to the path inside the container (e.g., `/local-sync`), and supply your SFTP credentials + Remote Root.
 4. Save the configuration, then run a sync or enable auto-sync. Logs and recent transfers appear instantly in the UI.
+
+## Docker & Compose
+### Using the provided `compose.yml`
+The included Compose file builds the multi-stage image and publishes the UI/API on port `8000`.
+
+```bash
+# build and run from the repository root
+docker compose up --build
+```
+
+By default, `compose.yml` mounts two volumes:
+- `./data` → `/data` for configs, secrets, and logs.
+- `./local-sync` → `/local-sync` for the mirrored files (edit this path to match your real destination).
+
+After the container starts, visit `http://localhost:8000` and set **Local Root** to `/local-sync` (or your edited mount path).
+
+### Building manually with Docker
+If you prefer a single `docker build`/`run` flow or need to adapt to another orchestrator, use the multi-stage `Dockerfile`:
+
+```bash
+# build the image
+docker build -t sshyphon:latest .
+
+# run it (adjust mounts for your host paths)
+docker run -p 8000:8000 \
+  -v $(pwd)/data:/data \
+  -v $(pwd)/local-sync:/local-sync \
+  sshyphon:latest
+```
+
+These commands mirror the Compose defaults: port `8000` serves the SPA + API, `/data` holds persistent state, and `/local-sync` is where synced files are written. Any Kubernetes or other YAML-based deployment can map the same volumes/port to achieve parity with the Compose setup.
+
+### Minimal YAML example
+For platforms that accept a plain YAML service definition, start with this snippet and adjust the host paths and ports for your environment:
+
+```yaml
+services:
+  sshyphon:
+    image: ghcr.io/mpassovoy/sshyphon:latest
+    container_name: sshyphon
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000" ### update with desired port mapping
+
+    volumes:
+      - /mnt/tank/sshyphon:/data
+      - /mnt/Main/folder:/local-sync  ### update with path to local storage for downloads
+```
+
+It mirrors the defaults from `compose.yml`: port `8000` exposes the web UI/API, `/data` stores configs and logs, and `/local-sync` hosts downloaded files. Update the mount points to match your storage layout.
 
 ## UI Features
 - **Config sections** – SSH credentials, Jellyfin setup, and task management each have dedicated tabs with help text.
