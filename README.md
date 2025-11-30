@@ -17,12 +17,12 @@ SSHyphon (Siphon) is a Docker-native SFTP sync control surface with a FastAPI ba
 <!-- CI-BADGE:END -->
 
 <!-- TEST-RESULTS:START -->
-**Last CI test run (Pacific Time): _pending_**
+**Last CI test run (Pacific Time): 2025-11-29 21:56:36 PST**
 
 | Test | Result |
 | --- | --- |
-| Backend tests | _pending_ |
-| Frontend tests | _pending_ |
+| Backend tests | ✅ |
+| Frontend tests | ✅ |
 <!-- TEST-RESULTS:END -->
 
 
