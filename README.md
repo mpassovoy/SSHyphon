@@ -1,17 +1,4 @@
-# <img src="resources/icons/icon_256.png" alt="SSHyphon icon" width="32" height="32" style="vertical-align:middle;margin-right:0.35rem;" /> SSHyphon
-
-<!-- CI-BADGE:START -->
-![CI Status](https://github.com/mpassovoy/SSHyphon/actions/workflows/build-and-publish-multi-arch.yml/badge.svg)
-<!-- CI-BADGE:END -->
-
-<!-- TEST-RESULTS:START -->
-**Last CI test run (Pacific Time): 2025-11-29 15:48:06 PST**
-
-| Test | Result |
-| --- | --- |
-| Backend tests | ✅ |
-| Frontend tests | ✅ |
-<!-- TEST-RESULTS:END -->
+# <img src="resources/icons/icon_circle_hi.png" alt="SSHyphon icon" width="32" height="32" style="vertical-align:middle;margin-right:0.35rem;" /> SSHyphon
 
 SSHyphon is a Docker-native SFTP sync control surface with a FastAPI backend and React/Vite frontend—the name is a wink to “SSH hyphen” because it bridges secure shell workflows with clean separation between sync and UI. The web dashboard handles SFTP transfers, Jellyfin task orchestration, logging, and scheduling inside a single container.
 
@@ -23,6 +10,21 @@ SSHyphon is a Docker-native SFTP sync control surface with a FastAPI backend and
 - **Docker-native deployment** – multi-stage image, single Uvicorn process on port `8000`, and persistent logs/configs in `/data`.
 - **Jellyfin orchestration** – configure Jellyfin servers and tasks, trigger runs alongside sync jobs, and monitor task status.
 - **Background scheduling** – optional auto-sync keeps your mirror up to date on a configurable interval.
+
+## Test Results
+<!-- CI-BADGE:START -->
+![CI Status](https://github.com/mpassovoy/SSHyphon/actions/workflows/build-and-publish-multi-arch.yml/badge.svg)
+<!-- CI-BADGE:END -->
+
+<!-- TEST-RESULTS:START -->
+**Last CI test run (Pacific Time): _pending_**
+
+| Test | Result |
+| --- | --- |
+| Backend tests | _pending_ |
+| Frontend tests | _pending_ |
+<!-- TEST-RESULTS:END -->
+
 
 ## Getting Started
 1. Clone the repo and build or pull the Docker image. The fastest path is `docker compose up --build` from the repo root.
