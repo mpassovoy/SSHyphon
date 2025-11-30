@@ -11,6 +11,13 @@ SSHyphon (Siphon) is a Docker-native SFTP sync control surface with a FastAPI ba
 - **Jellyfin orchestration** – configure Jellyfin servers and tasks, trigger runs alongside sync jobs, and monitor task status.
 - **Background scheduling** – optional auto-sync keeps your mirror up to date on a configurable interval.
 
+## Wiki
+Check out the starting wiki pages under `docs/wiki` for setup, workflows, and operational guidance:
+- [Wiki index](docs/wiki/README.md)
+- [Getting started](docs/wiki/getting-started.md)
+- [Syncing & Jellyfin tasks](docs/wiki/syncing-and-jellyfin.md)
+- [Logs, backups, and recovery](docs/wiki/operations.md)
+
 ## Test Results
 <!-- CI-BADGE:START -->
 ![CI Status](https://github.com/mpassovoy/SSHyphon/actions/workflows/build-and-publish-multi-arch.yml/badge.svg)
