@@ -15,6 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 VERSION_FILE = PROJECT_ROOT / "VERSION"
 VERSION_JSON_FILE = PROJECT_ROOT / "VERSION.json"
 GITHUB_REPO_ENV = "SSHPHON_GITHUB_REPOSITORY"
+FALLBACK_GITHUB_REPO = "mpassovoy/SSHyphon"
 _CACHE_TTL_SECONDS = 300
 _cached_payload: dict[str, Any] | None = None
 _cached_at: float | None = None
@@ -71,11 +72,11 @@ def _infer_repository_slug() -> str | None:
             check=True,
         )
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return None
+        return FALLBACK_GITHUB_REPO
 
     url = result.stdout.strip()
     if not url:
-        return None
+        return FALLBACK_GITHUB_REPO
 
     if url.endswith(".git"):
         url = url[:-4]
@@ -87,7 +88,7 @@ def _infer_repository_slug() -> str | None:
             parts = url.split("github.com/", 1)
             if len(parts) == 2:
                 return parts[1]
-    return None
+    return FALLBACK_GITHUB_REPO
 
 
 def fetch_latest_version_tag(repo_slug: str) -> str | None:
@@ -106,7 +107,10 @@ def fetch_latest_version_tag(repo_slug: str) -> str | None:
             timeout=5,
         )
         if release_resp.ok:
-            tag_name = release_resp.json().get("tag_name")
+            try:
+                tag_name = release_resp.json().get("tag_name")
+            except ValueError:
+                tag_name = None
             normalized = _normalize_version_string(tag_name)
             if normalized:
                 return normalized
@@ -121,7 +125,10 @@ def fetch_latest_version_tag(repo_slug: str) -> str | None:
             timeout=5,
         )
         if tags_resp.ok:
-            tags = tags_resp.json()
+            try:
+                tags = tags_resp.json()
+            except ValueError:
+                tags = None
             if tags:
                 return _normalize_version_string(tags[0].get("name"))
     except requests.RequestException:

@@ -64,3 +64,41 @@ def test_get_version_payload_caches_and_invalidates(tmp_path, monkeypatch):
     refreshed_payload = versioning.get_version_payload()
     assert refreshed_payload["version"] == "2.0.0"
     assert calls["count"] == 2
+
+
+def test_fetch_latest_version_tag_survives_bad_json(monkeypatch):
+    calls = {"urls": []}
+
+    class FakeResponse:
+        def __init__(self, *, ok=True, payload=None, raises=False):
+            self.ok = ok
+            self._payload = payload
+            self._raises = raises
+
+        def json(self):
+            if self._raises:
+                raise ValueError("bad json")
+            return self._payload
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        calls["urls"].append(url)
+        if "releases/latest" in url:
+            return FakeResponse(ok=True, raises=True)
+        return FakeResponse(ok=True, payload=[])
+
+    monkeypatch.setattr(versioning.requests, "get", fake_get)
+
+    assert versioning.fetch_latest_version_tag("example/repo") is None
+    assert any("releases/latest" in url for url in calls["urls"])
+
+
+def test_infer_repository_slug_uses_fallback(monkeypatch):
+    monkeypatch.delenv(versioning.GITHUB_REPO_ENV, raising=False)
+    monkeypatch.delenv("GITHUB_REPOSITORY", raising=False)
+    monkeypatch.setattr(
+        versioning.subprocess,
+        "run",
+        lambda *_, **__: (_ for _ in ()).throw(versioning.subprocess.CalledProcessError(1, "git")),
+    )
+
+    assert versioning._infer_repository_slug() == versioning.FALLBACK_GITHUB_REPO
