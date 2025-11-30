@@ -25,6 +25,13 @@ If you need to start fresh:
 2. Move or delete the `/data` volume contents (this wipes saved credentials and schedules).
 3. Start the container again and re-enter settings in the UI.
 
+## Recover access if you are locked out
+If you cannot log in (lost username/password):
+1. Stop the container to avoid writing while you edit files (`docker compose stop sshyphon`).
+2. On the host, delete the auth file in your data mount (default `./data/auth.json` when using the provided `compose.yml`).
+3. Restart the container (`docker compose up -d sshyphon`). The app will behave as unconfigured authentication—open the UI and set a new username and password on the login/setup screen.
+4. If you also want to clear saved SFTP secrets at the same time, delete `./data/secrets.json` before restarting.
+
 ## Container health checks
 - Confirm the web UI responds on the published port (default `8000`).
 - Verify the worker shows **Idle** when not running a job and updates after each sync.

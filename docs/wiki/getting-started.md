@@ -40,3 +40,26 @@ docker run -p 8000:8000 \
   sshyphon:latest
 ```
 This mirrors the Compose defaults while letting you change the mount points to match your environment.
+
+## Deploying on TrueNAS with a custom YAML
+If you use the TrueNAS `docker-compose` UI or a custom YAML, you can mirror the repo’s `compose.yml` while pointing to your storage pools:
+
+1. Create a dataset for persistent app data (e.g., `/mnt/tank/apps/sshyphon/data`) and one for downloads (e.g., `/mnt/tank/media/local-sync`).
+2. Author a `docker-compose.truenas.yml` like:
+   ```yaml
+   services:
+     sshyphon:
+       image: ghcr.io/your-org/sshyphon:latest # or build locally and push to your registry
+       container_name: sshyphon
+       ports:
+         - "8000:8000"
+       volumes:
+         - /mnt/tank/apps/sshyphon/data:/data
+         - /mnt/tank/media/local-sync:/local-sync
+       restart: unless-stopped
+   ```
+3. Import that YAML into the TrueNAS Compose app (or place it in the app’s working directory) and deploy:
+   ```bash
+   docker compose -f docker-compose.truenas.yml up -d
+   ```
+4. After the container starts, open `http://<truenas-host>:8000`, set **Local Root** to `/local-sync`, and save settings so secrets persist under `/data`.
