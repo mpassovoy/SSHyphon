@@ -2,7 +2,10 @@
 
 SSHyphon (Siphon) is a Docker-native SFTP sync control surface with a FastAPI backend and React/Vite frontend—the name is a wink to “SSH hyphen” because it bridges secure shell workflows with clean separation between sync and UI. The web dashboard handles SFTP transfers, Jellyfin task orchestration, logging, and scheduling inside a single container.
 
-![SSHyphon Web UI](docs/SSHyphon_main.png)
+## Screenshots
+| Dashboard | Login | Configuration | Jellyfin |
+| --- | --- | --- | --- |
+| [<img src="../SSHyphon_main.png" alt="Dashboard overview" width="300" />](../SSHyphon_main.png) | [<img src="../ssyhpon_login.png" alt="Login screen" width="300" />](../ssyhpon_login.png) | [<img src="../sync_settings.png" alt="Sync settings" width="300" />](../sync_settings.png) | [<img src="../jellyfin_tasks.png" alt="Jellyfin tasks" width="300" />](../jellyfin_tasks.png) |
 
 ## Highlights
 - **Unified dashboard** – status tiles, transfer history, activity/error logs, and performant controls under one SPA.
@@ -17,6 +20,7 @@ Check out the starting wiki pages under `docs/wiki` for setup, workflows, and op
 - [Getting started](docs/wiki/getting-started.md)
 - [Syncing & Jellyfin tasks](docs/wiki/syncing-and-jellyfin.md)
 - [Logs, backups, and recovery](docs/wiki/operations.md)
+- [API Reference Guide](docs/wiki/api-reference.md)
 
 ## Test Results
 <!-- CI-BADGE:START -->
@@ -24,12 +28,12 @@ Check out the starting wiki pages under `docs/wiki` for setup, workflows, and op
 <!-- CI-BADGE:END -->
 
 <!-- TEST-RESULTS:START -->
-**Last CI test run (Pacific Time): 2025-11-29 22:24:53 PST**
+**Last CI test run (Pacific Time): _pending_**
 
 | Test | Result |
 | --- | --- |
-| Backend tests | ✅ |
-| Frontend tests | ✅ |
+| Backend tests | _pending_ |
+| Frontend tests | _pending_ |
 <!-- TEST-RESULTS:END -->
 
 
