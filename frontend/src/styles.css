@@ -79,12 +79,7 @@ button {
 
 @media (max-width: 640px) {
   .top-action-bar .button-group {
-    flex-wrap: nowrap;
-  }
-  .button-group button {
-    padding: 0.55rem 0.8rem;
-    min-width: 0;
-    flex: 1;
+    width: 100%;
   }
 }
 
