@@ -120,16 +120,19 @@ button {
 }
 
 .header-version-icon {
-  width: 16px;
-  height: 16px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  animation: pulse 3s ease-in-out infinite;
 }
 
-.header-version-icon svg {
-  width: 16px;
-  height: 16px;
+.header-version-icon img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
 }
 
 .header-icon {
@@ -918,4 +921,19 @@ button {
   margin-top: 0.5rem;
   font-size: 1rem;
   padding: 0.85rem 1rem;
+}
+.header-version-icon svg {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.75;
+  }
 }

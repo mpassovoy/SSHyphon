@@ -68,29 +68,19 @@ export function AuthLogin({
               <div className="header-version" aria-label={`Build version ${displayVersion}`}>
                 <span className="header-version-text">{displayVersion}</span>
                 {updateAvailable && latestVersion && (
-                  <span
+                  <a
                     className="header-version-icon"
-                    title={`Update available: ${latestVersion}`}
+                    href="https://ghcr.io/mpassovoy/sshyphon:latest"
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`Update Available, ${latestVersion}`}
                   >
-                    <svg viewBox="0 0 16 16" role="img" focusable="false">
-                      <circle
-                        cx="8"
-                        cy="8"
-                        r="7"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.2"
-                      />
-                      <path
-                        d="M8.5 4.5 8.5 9.5M5 6.5 8.5 3 12 6.5"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
+                    <img
+                      src="/icons/new_version.png"
+                      alt={`Update available: ${latestVersion}`}
+                      loading="lazy"
+                    />
+                  </a>
                 )}
               </div>
             </div>
