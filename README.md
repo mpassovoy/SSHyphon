@@ -28,12 +28,12 @@ Check out the starting wiki pages under `docs/wiki` for setup, workflows, and op
 <!-- CI-BADGE:END -->
 
 <!-- TEST-RESULTS:START -->
-**Last CI test run (Pacific Time): 2025-11-29 23:05:12 PST**
+**Last CI test run (Pacific Time): _pending_**
 
 | Test | Result |
 | --- | --- |
-| Backend tests | ✅ |
-| Frontend tests | ✅ |
+| Backend tests | _pending_ |
+| Frontend tests | _pending_ |
 <!-- TEST-RESULTS:END -->
 
 

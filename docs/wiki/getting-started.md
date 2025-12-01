@@ -17,7 +17,7 @@ A minimal setup to run SSHyphon locally or on a home server using Docker. The go
    - `./local-sync` → `/local-sync` for downloaded files.
 4. Adjust the host paths in `compose.yml` if you need different storage locations.
 
-![Compose-ready dashboard](../SSHyphon_main.png)
+[<img src="../SSHyphon_main.png" alt="SSHyphon Main Window" width="600" />](../SSHyphon_main.png)
 
 ## First login and config save
 1. Open `http://localhost:8000` and log in (no default credentials required).
@@ -28,7 +28,7 @@ A minimal setup to run SSHyphon locally or on a home server using Docker. The go
 3. Click **Save Settings**. Secrets are persisted inside `/data` and shown as `********` afterward.
 4. Run a manual sync or enable **Auto-sync** to start scheduled mirroring.
 
-![Settings form](../sync_settings.png)
+[<img src="../sync_settings.png" alt="Sync Settings" width="600" />](../sync_settings.png)
 
 ## Building without Compose
 If you prefer plain Docker commands:
@@ -44,22 +44,25 @@ This mirrors the Compose defaults while letting you change the mount points to m
 ## Deploying on TrueNAS with a custom YAML
 If you use the TrueNAS `docker-compose` UI or a custom YAML, you can mirror the repo’s `compose.yml` while pointing to your storage pools:
 
-1. Create a dataset for persistent app data (e.g., `/mnt/tank/apps/sshyphon/data`) and one for downloads (e.g., `/mnt/tank/media/local-sync`).
-2. Author a `docker-compose.truenas.yml` like:
+1. In TrueNAS, go to Apps>Discover Apps>Install via YAML.
+
+[<img src="../truenas_yaml.png" alt="TrueNAS YAML Install" width="800" />](../truenas_yaml.png)
+
+2. Enter the YAML config for SSHyhon:
    ```yaml
    services:
      sshyphon:
-       image: ghcr.io/your-org/sshyphon:latest # or build locally and push to your registry
+       image: https://ghcr.io/mpassovoy/sshyphon:latest # or update with version, https://ghcr.io/mpassovoy/sshyphon:v0.0.X
        container_name: sshyphon
        ports:
          - "8000:8000"
        volumes:
          - /mnt/tank/apps/sshyphon/data:/data
-         - /mnt/tank/media/local-sync:/local-sync
+         - /mnt/tank/media/local-sync:/local-sync  # update to the root folder to expose to SSHyphon
        restart: unless-stopped
    ```
-3. Import that YAML into the TrueNAS Compose app (or place it in the app’s working directory) and deploy:
-   ```bash
-   docker compose -f docker-compose.truenas.yml up -d
-   ```
+3. Hit Save.
+
+[<img src="../truenas_yaml_config.png" alt="TrueNAS YAML Install window" width="600" />](../truenas_yaml_config.png)
+
 4. After the container starts, open `http://<truenas-host>:8000`, set **Local Root** to `/local-sync`, and save settings so secrets persist under `/data`.
